@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/forecastIcon"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:background="#F0F7F4"
+            android:padding="8dp"
+            android:src="@drawable/ic_weather_cloud_sun"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/timeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="12 PM / 8°C"
+            android:textColor="#2C3E50"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@id/forecastIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/descText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Solvent, Cloud"
+            android:textColor="#95A5A6"
+            android:textSize="13sp"
+            app:layout_constraintStart_toStartOf="@id/timeText"
+            app:layout_constraintTop_toBottomOf="@id/timeText" />
+
+        <TextView
+            android:id="@+id/mainTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="16°C"
+            android:textColor="#2C3E50"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/subTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High"
+            android:textColor="#95A5A6"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="@id/mainTemp"
+            app:layout_constraintTop_toBottomOf="@id/mainTemp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
