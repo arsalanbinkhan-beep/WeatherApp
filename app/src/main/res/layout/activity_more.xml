@@ -140,6 +140,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/card_white"
+        app:itemIconTint="@android:color/black"
+        app:itemTextColor="@android:color/black"
         app:menu="@menu/bottom_nav_menu"
         app:layout_constraintBottom_toBottomOf="parent" />
 

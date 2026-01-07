@@ -15,6 +15,13 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            // Check if we have a saved city, if not use default
+            String city = WeatherUtils.getSavedCity(this);
+            if (city == null || city.isEmpty()) {
+                city = "Mumbai";
+                WeatherUtils.saveCity(this, city);
+            }
+
             startActivity(new Intent(SplashActivity.this, MainActivity.class));
             finish();
         }, 2000);
