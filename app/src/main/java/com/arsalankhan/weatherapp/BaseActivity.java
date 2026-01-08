@@ -93,7 +93,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    private void navigateTo(Class<?> destination) {
+    void navigateTo(Class<?> destination) {
         try {
             Intent intent = new Intent(this, destination);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);

@@ -19,7 +19,8 @@ public class SplashActivity extends AppCompatActivity {
             String city = WeatherUtils.getSavedCity(this);
             if (city == null || city.isEmpty()) {
                 city = "Mumbai";
-                WeatherUtils.saveCity(this, city);
+                // Use saveLocation instead of saveCity
+                WeatherUtils.saveLocation(this, city, "IN", 19.0760, 72.8777);
             }
 
             startActivity(new Intent(SplashActivity.this, MainActivity.class));

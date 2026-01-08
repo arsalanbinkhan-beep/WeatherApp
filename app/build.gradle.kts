@@ -34,32 +34,42 @@ android {
 
 dependencies {
 
-    // AndroidX
-    implementation(libs.appcompat)
-    implementation(libs.material)
-    implementation(libs.activity)
-    implementation(libs.constraintlayout)
+    /* ---------------- AndroidX Core ---------------- */
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.activity:activity:1.8.2")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 
-    // Optional (remove if unused)
-    implementation(libs.ink.geometry.jvm)
-    implementation(libs.filament.android)
-    implementation(libs.sceneform.base)
-
-    // Retrofit (Weather API)
+    /* ---------------- Retrofit & Networking ---------------- */
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
-    // Location
+    /* ---------------- Location Services ---------------- */
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
-    // Glide (Images)
+    /* ---------------- Image Loading ---------------- */
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
-    // Testing
+    /* ---------------- Room Database ---------------- */
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+
+    /* ---------------- Shimmer Effect ---------------- */
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
+
+    /* ---------------- Testing ---------------- */
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    /* ---------------- Optional (remove if unused) ---------------- */
+    implementation(libs.ink.geometry.jvm)
+    implementation(libs.filament.android)
+    implementation(libs.sceneform.base)
 }

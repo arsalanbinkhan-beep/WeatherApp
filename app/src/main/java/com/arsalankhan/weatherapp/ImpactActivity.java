@@ -1,13 +1,22 @@
 package com.arsalankhan.weatherapp;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.progressindicator.CircularProgressIndicator;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -16,8 +25,13 @@ import retrofit2.Response;
 public class ImpactActivity extends BaseActivity {
 
     private RecyclerView forecastRecyclerView;
-    private ForecastAdapter forecastAdapter;
-    private TextView impactScoreText, impactStatusText;
+    private DailyForecastAdapter forecastAdapter;
+    private CircularProgressIndicator impactGauge;
+    private TextView impactScoreText, impactStatusText, impactDescriptionText;
+    private ProgressBar loadingProgress;
+
+    private List<WeatherModels.ForecastItem> allForecastItems = new ArrayList<>();
+    private Map<String, List<WeatherModels.ForecastItem>> dailyForecastMap = new HashMap<>();
 
     @Override
     protected int getLayoutId() {
@@ -33,93 +47,277 @@ public class ImpactActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        forecastRecyclerView = findViewById(R.id.forecastRecyclerView);
-        impactScoreText = findViewById(R.id.impactScore);
-        impactStatusText = findViewById(R.id.impactStatus);
-
-        // Setup RecyclerView
-        forecastRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        forecastAdapter = new ForecastAdapter(new ArrayList<>());
-        forecastRecyclerView.setAdapter(forecastAdapter);
-
-        // Load forecast data
+        initViews();
+        setupRecyclerView();
         loadForecastData();
     }
 
+    private void initViews() {
+        forecastRecyclerView = findViewById(R.id.forecastRecyclerView);
+        impactGauge = findViewById(R.id.impactGauge);
+        impactScoreText = findViewById(R.id.impactScore);
+        impactStatusText = findViewById(R.id.impactStatus);
+        impactDescriptionText = findViewById(R.id.impactDescription);
+        loadingProgress = findViewById(R.id.loadingProgress);
+    }
+
+    private void setupRecyclerView() {
+        forecastAdapter = new DailyForecastAdapter(new ArrayList<>());
+        forecastRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        forecastRecyclerView.setAdapter(forecastAdapter);
+    }
+
     private void loadForecastData() {
+        showLoading(true);
+
         String city = WeatherUtils.getSavedCity(this);
+        String unit = WeatherUtils.getSavedUnit(this);
 
         WeatherApiService service = WeatherApiService.Factory.getInstance();
         Call<WeatherModels.ForecastResponse> call = service.getForecast(
                 city,
-                "metric",
+                unit,
+                40, // 5 days * 8 forecasts per day = 40
                 WeatherApiService.API_KEY
         );
 
         call.enqueue(new Callback<WeatherModels.ForecastResponse>() {
             @Override
-            public void onResponse(Call<WeatherModels.ForecastResponse> call, Response<WeatherModels.ForecastResponse> response) {
+            public void onResponse(Call<WeatherModels.ForecastResponse> call,
+                                   Response<WeatherModels.ForecastResponse> response) {
+                showLoading(false);
+
                 if (response.isSuccessful() && response.body() != null) {
-                    updateForecastUI(response.body());
+                    allForecastItems = response.body().list;
+                    processForecastData();
+                    calculateImpactScore();
+                } else {
+                    showSampleData();
                 }
             }
 
             @Override
             public void onFailure(Call<WeatherModels.ForecastResponse> call, Throwable t) {
-                showSampleForecast();
+                showLoading(false);
+                showSampleData();
             }
         });
     }
 
-    private void updateForecastUI(WeatherModels.ForecastResponse forecast) {
-        List<WeatherModels.ForecastItem> items = new ArrayList<>();
+    private void processForecastData() {
+        dailyForecastMap.clear();
 
-        // Take first 5 forecast items (for next 5 days/times)
-        int count = Math.min(forecast.list.length, 5);
-        for (int i = 0; i < count; i++) {
-            items.add(forecast.list[i]);
+        // Group forecasts by day
+        for (WeatherModels.ForecastItem item : allForecastItems) {
+            String day = WeatherUtils.formatDay(item.timestamp);
+
+            if (!dailyForecastMap.containsKey(day)) {
+                dailyForecastMap.put(day, new ArrayList<>());
+            }
+            dailyForecastMap.get(day).add(item);
         }
 
-        forecastAdapter.updateData(items);
+        // Create daily forecasts
+        List<DailyForecast> dailyForecasts = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
 
-        // Calculate impact score based on weather conditions
-        calculateImpactScore(items);
+        for (Map.Entry<String, List<WeatherModels.ForecastItem>> entry : dailyForecastMap.entrySet()) {
+            String day = entry.getKey();
+            List<WeatherModels.ForecastItem> dayItems = entry.getValue();
+
+            if (dayItems.isEmpty()) continue;
+
+            // Calculate min/max temp for the day
+            double minTemp = Double.MAX_VALUE;
+            double maxTemp = Double.MIN_VALUE;
+            String mostCommonWeather = "Clear";
+            Map<String, Integer> weatherCount = new HashMap<>();
+
+            for (WeatherModels.ForecastItem item : dayItems) {
+                minTemp = Math.min(minTemp, item.main.tempMin);
+                maxTemp = Math.max(maxTemp, item.main.tempMax);
+
+                if (!item.weather.isEmpty()) {
+                    String weather = item.weather.get(0).main;
+                    weatherCount.put(weather, weatherCount.getOrDefault(weather, 0) + 1);
+                }
+            }
+
+            // Find most common weather
+            int maxCount = 0;
+            for (Map.Entry<String, Integer> weatherEntry : weatherCount.entrySet()) {
+                if (weatherEntry.getValue() > maxCount) {
+                    maxCount = weatherEntry.getValue();
+                    mostCommonWeather = weatherEntry.getKey();
+                }
+            }
+
+            // Get first item for date
+            WeatherModels.ForecastItem firstItem = dayItems.get(0);
+            String unit = WeatherUtils.getSavedUnit(this);
+
+            DailyForecast forecast = new DailyForecast(
+                    day,
+                    WeatherUtils.formatDate(firstItem.timestamp),
+                    WeatherUtils.formatTemperature(minTemp, unit),
+                    WeatherUtils.formatTemperature(maxTemp, unit),
+                    mostCommonWeather,
+                    WeatherUtils.getWeatherIconResource(mostCommonWeather),
+                    firstItem.weather.get(0).description
+            );
+
+            dailyForecasts.add(forecast);
+
+            // Limit to 7 days
+            if (dailyForecasts.size() >= 7) break;
+        }
+
+        forecastAdapter.updateData(dailyForecasts);
     }
 
-    private void calculateImpactScore(List<WeatherModels.ForecastItem> forecastItems) {
-        // Simple impact calculation
-        int score = 75; // Base score
+    private void calculateImpactScore() {
+        if (allForecastItems.isEmpty()) {
+            setImpactScore(60, "MODERATE IMPACT",
+                    "Moderate air quality and precipitation.");
+            return;
+        }
 
-        for (WeatherModels.ForecastItem item : forecastItems) {
-            if (item.weather[0].main.equalsIgnoreCase("rain")) {
-                score -= 15;
-            } else if (item.weather[0].main.equalsIgnoreCase("clear")) {
-                score += 10;
+        int score = 75; // Base score
+        int rainCount = 0;
+        int stormCount = 0;
+        int clearCount = 0;
+
+        // Analyze next 24 hours (8 forecasts)
+        int hoursToAnalyze = Math.min(8, allForecastItems.size());
+        for (int i = 0; i < hoursToAnalyze; i++) {
+            WeatherModels.ForecastItem item = allForecastItems.get(i);
+
+            if (!item.weather.isEmpty()) {
+                String weather = item.weather.get(0).main.toLowerCase();
+
+                if (weather.contains("rain")) {
+                    rainCount++;
+                    score -= 10;
+                } else if (weather.contains("storm")) {
+                    stormCount++;
+                    score -= 20;
+                } else if (weather.contains("clear")) {
+                    clearCount++;
+                    score += 5;
+                } else if (weather.contains("snow")) {
+                    score -= 15;
+                }
+            }
+
+            // Temperature impact
+            if (item.main.temperature > 35) { // Too hot
+                score -= 5;
+            } else if (item.main.temperature < 5) { // Too cold
+                score -= 5;
+            }
+
+            // Wind impact
+            if (item.wind.speed > 10) { // Strong wind
+                score -= 5;
             }
         }
 
-        score = Math.max(0, Math.min(100, score)); // Keep between 0-100
+        // Keep score between 0-100
+        score = Math.max(0, Math.min(100, score));
 
-        impactScoreText.setText(score + "%");
+        // Determine impact level
+        String impactLevel;
+        String description;
 
         if (score >= 80) {
-            impactStatusText.setText("LOW IMPACT");
-            impactStatusText.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-        } else if (score >= 50) {
-            impactStatusText.setText("MODERATE IMPACT");
-            impactStatusText.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));
+            impactLevel = "LOW IMPACT";
+            description = "Ideal weather conditions. Perfect for outdoor activities.";
+        } else if (score >= 60) {
+            impactLevel = "MODERATE IMPACT";
+            description = "Generally good conditions. Some minor weather factors to consider.";
+        } else if (score >= 40) {
+            impactLevel = "HIGH IMPACT";
+            description = "Significant weather impacts expected. Plan indoor activities.";
         } else {
-            impactStatusText.setText("HIGH IMPACT");
-            impactStatusText.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            impactLevel = "SEVERE IMPACT";
+            description = "Severe weather conditions. Avoid outdoor activities if possible.";
         }
+
+        // Add specific warnings
+        if (rainCount > 0) {
+            description += "\n• " + rainCount + " hours of rain expected";
+        }
+        if (stormCount > 0) {
+            description += "\n• Thunderstorms possible";
+        }
+        if (clearCount >= 6) {
+            description += "\n• Mostly clear skies";
+        }
+
+        setImpactScore(score, impactLevel, description);
     }
 
-    private void showSampleForecast() {
-        // Sample forecast data
-        List<WeatherModels.ForecastItem> sampleItems = new ArrayList<>();
-        forecastAdapter.updateData(sampleItems);
+    private void setImpactScore(int score, String level, String description) {
+        impactGauge.setProgress(score);
+        impactScoreText.setText(score + "%");
+        impactStatusText.setText(level);
+        impactDescriptionText.setText(description);
 
-        impactScoreText.setText("60%");
-        impactStatusText.setText("MODERATE IMPACT");
+        // Set colors based on score
+        int colorRes;
+        if (score >= 80) {
+            colorRes = android.R.color.holo_green_dark;
+        } else if (score >= 60) {
+            colorRes = android.R.color.holo_orange_dark;
+        } else if (score >= 40) {
+            colorRes = android.R.color.holo_orange_light;
+        } else {
+            colorRes = android.R.color.holo_red_dark;
+        }
+
+        impactStatusText.setTextColor(getResources().getColor(colorRes));
+        impactGauge.setIndicatorColor(getResources().getColor(colorRes));
+    }
+
+    private void showLoading(boolean show) {
+        loadingProgress.setVisibility(show ? View.VISIBLE : View.GONE);
+        forecastRecyclerView.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+
+    private void showSampleData() {
+        // Sample daily forecasts
+        List<DailyForecast> sampleForecasts = new ArrayList<>();
+        sampleForecasts.add(new DailyForecast("Today", "Mon, 10 Jan", "12°C", "18°C",
+                "Clouds", R.drawable.ic_weather_cloud, "Cloudy"));
+        sampleForecasts.add(new DailyForecast("Tue", "Tue, 11 Jan", "11°C", "17°C",
+                "Rain", R.drawable.ic_weather_rain, "Light rain"));
+        sampleForecasts.add(new DailyForecast("Wed", "Wed, 12 Jan", "10°C", "16°C",
+                "Clear", R.drawable.ic_weather_sun, "Sunny"));
+
+        forecastAdapter.updateData(sampleForecasts);
+        setImpactScore(60, "MODERATE IMPACT",
+                "Moderate air quality and precipitation.\n• 2 hours of rain expected");
+    }
+
+    // Daily Forecast model class
+    static class DailyForecast {
+        String day;
+        String date;
+        String minTemp;
+        String maxTemp;
+        String weather;
+        int weatherIcon;
+        String description;
+
+        DailyForecast(String day, String date, String minTemp, String maxTemp,
+                      String weather, int weatherIcon, String description) {
+            this.day = day;
+            this.date = date;
+            this.minTemp = minTemp;
+            this.maxTemp = maxTemp;
+            this.weather = weather;
+            this.weatherIcon = weatherIcon;
+            this.description = description;
+        }
     }
 }

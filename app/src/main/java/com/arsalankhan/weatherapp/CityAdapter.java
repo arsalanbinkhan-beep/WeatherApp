@@ -17,6 +17,8 @@ public class CityAdapter extends RecyclerView.Adapter<CityAdapter.ViewHolder> {
 
     public interface OnCityClickListener {
         void onCityClick(WeatherModels.CityItem city);
+
+        void onFavoriteClick(WeatherModels.CityItem city, boolean isFavorite);
     }
 
     public CityAdapter(List<WeatherModels.CityItem> cities, OnCityClickListener listener) {

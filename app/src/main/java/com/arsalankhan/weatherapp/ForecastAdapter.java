@@ -43,21 +43,24 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
         String time = formatTime(item.timestamp);
         holder.timeText.setText(time);
 
-        // Temperature
-        holder.mainTemp.setText(WeatherUtils.formatTemperature(item.main.temperature));
+        // Temperature - FIX: Pass only unit parameter
+        String unit = WeatherUtils.getSavedUnit(holder.itemView.getContext());
+        holder.mainTemp.setText(WeatherUtils.formatTemperature(item.main.temperature, unit));
 
         // Weather description
-        if (item.weather.length > 0) {
-            holder.descText.setText(item.weather[0].description);
+        if (item.weather != null && !item.weather.isEmpty()) {
+            holder.descText.setText(item.weather.get(0).description);
 
-            // Load weather icon
-            WeatherUtils.loadWeatherIcon(holder.itemView.getContext(),
-                    item.weather[0].icon, holder.forecastIcon);
+            // Load weather icon - FIX: Use correct method
+            if (item.weather.get(0).icon != null) {
+                WeatherUtils.loadWeatherIcon(holder.itemView.getContext(),
+                        item.weather.get(0).icon, holder.forecastIcon);
+            }
         }
 
         // High/Low temp
-        holder.subTemp.setText("H: " + WeatherUtils.formatTemperature(item.main.tempMax) +
-                " L: " + WeatherUtils.formatTemperature(item.main.tempMin));
+        holder.subTemp.setText("H: " + WeatherUtils.formatTemperature(item.main.tempMax, unit) +
+                " L: " + WeatherUtils.formatTemperature(item.main.tempMin, unit));
     }
 
     @Override
