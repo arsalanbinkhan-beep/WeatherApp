@@ -210,7 +210,7 @@ public class MainActivity extends BaseActivity {
         Call<WeatherModels.ForecastResponse> call = service.getForecast(
                 city,
                 unit,
-                40, WeatherApiService.API_KEY
+                WeatherApiService.API_KEY  // Only 3 parameters!
         );
 
         call.enqueue(new Callback<WeatherModels.ForecastResponse>() {

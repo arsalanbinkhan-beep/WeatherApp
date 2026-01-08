@@ -12,10 +12,8 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import retrofit2.Call;
@@ -77,7 +75,7 @@ public class ImpactActivity extends BaseActivity {
         Call<WeatherModels.ForecastResponse> call = service.getForecast(
                 city,
                 unit,
-                40, // 5 days * 8 forecasts per day = 40
+                // 5 days * 8 forecasts per day = 40
                 WeatherApiService.API_KEY
         );
 

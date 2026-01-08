@@ -31,7 +31,7 @@ public interface WeatherApiService {
     Call<WeatherModels.ForecastResponse> getForecast(
             @Query("q") String city,
             @Query("units") String units,
-            int i, @Query("appid") String apiKey
+            @Query("appid") String apiKey
     );
 
     // Fix: This endpoint might not exist or have different parameters
