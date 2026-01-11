@@ -78,9 +78,9 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- Weather Map -->
+                    <!-- AQI Map (NEW) -->
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/weatherMapItem"
+                        android:id="@+id/aqiMapItem"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
@@ -97,14 +97,14 @@
                             <ImageView
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:src="@drawable/ic_map"
+                                android:src="@drawable/ic_map_pollution"
                                 app:tint="#2C3E50" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
-                                android:text="Weather Map"
+                                android:text="AQI Map"
                                 android:textColor="#2C3E50"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
@@ -188,9 +188,9 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
-                    <!-- Air Quality -->
+                    <!-- Weather Map -->
                     <androidx.cardview.widget.CardView
-                        android:id="@+id/airQualityItem"
+                        android:id="@+id/weatherMapItem"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
@@ -207,14 +207,14 @@
                             <ImageView
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
-                                android:src="@drawable/ic_air"
+                                android:src="@drawable/ic_map"
                                 app:tint="#2C3E50" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
-                                android:text="Air Quality"
+                                android:text="Weather Map"
                                 android:textColor="#2C3E50"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
@@ -258,6 +258,46 @@
             </LinearLayout>
 
             <!-- Additional single column items -->
+            <!-- Air Quality Info -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/airQualityItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginEnd="16dp"
+                        android:src="@drawable/ic_air"
+                        app:tint="#2C3E50" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Air Quality Info"
+                        android:textColor="#2C3E50"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="#95A5A6" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
             <!-- UV Index -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/uvIndexItem"
@@ -343,7 +383,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="WeatherApp v1.0.0\nPowered by OpenWeatherMap API"
+                android:text="WeatherApp v1.0.0\nPowered by OpenWeatherMap API &amp; OpenAQ.org"
                 android:textColor="#95A5A6"
                 android:textSize="12sp"
                 android:gravity="center" />

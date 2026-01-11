@@ -2,6 +2,7 @@ package com.arsalankhan.weatherapp;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,12 +48,20 @@ public class WeatherUtils {
 
     public static double getSavedLat(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return Double.parseDouble(prefs.getString(KEY_LAT, "19.0760"));
+        try {
+            return Double.parseDouble(prefs.getString(KEY_LAT, "19.0760"));
+        } catch (NumberFormatException e) {
+            return 19.0760;
+        }
     }
 
     public static double getSavedLon(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        return Double.parseDouble(prefs.getString(KEY_LON, "72.8777"));
+        try {
+            return Double.parseDouble(prefs.getString(KEY_LON, "72.8777"));
+        } catch (NumberFormatException e) {
+            return 72.8777;
+        }
     }
 
     public static void saveUnit(Context context, String unit) {
@@ -158,24 +167,33 @@ public class WeatherUtils {
     }
 
     public static String getAQILevel(int aqi) {
-        switch (aqi) {
-            case 1: return "Good";
-            case 2: return "Fair";
-            case 3: return "Moderate";
-            case 4: return "Poor";
-            case 5: return "Very Poor";
-            default: return "Unknown";
-        }
+        if (aqi >= 0 && aqi <= 50) return "Good";
+        if (aqi <= 100) return "Moderate";
+        if (aqi <= 150) return "Unhealthy for Sensitive Groups";
+        if (aqi <= 200) return "Unhealthy";
+        if (aqi <= 300) return "Very Unhealthy";
+        return "Hazardous";
     }
 
     public static int getAQIColor(Context context, int aqi) {
-        switch (aqi) {
-            case 1: return context.getResources().getColor(R.color.aqi_good);
-            case 2: return context.getResources().getColor(R.color.aqi_fair);
-            case 3: return context.getResources().getColor(R.color.aqi_moderate);
-            case 4: return context.getResources().getColor(R.color.aqi_poor);
-            case 5: return context.getResources().getColor(R.color.aqi_very_poor);
-            default: return context.getResources().getColor(R.color.grey);
+        if (aqi >= 0 && aqi <= 50) {
+            // Green
+            return Color.parseColor("#4CAF50");
+        } else if (aqi <= 100) {
+            // Yellow
+            return Color.parseColor("#FFEB3B");
+        } else if (aqi <= 150) {
+            // Orange
+            return Color.parseColor("#FF9800");
+        } else if (aqi <= 200) {
+            // Red
+            return Color.parseColor("#F44336");
+        } else if (aqi <= 300) {
+            // Purple
+            return Color.parseColor("#9C27B0");
+        } else {
+            // Maroon
+            return Color.parseColor("#795548");
         }
     }
 
@@ -185,5 +203,16 @@ public class WeatherUtils {
         if (uvi <= 7) return "High";
         if (uvi <= 10) return "Very High";
         return "Extreme";
+    }
+
+    public static boolean isNetworkAvailable(Context context) {
+        try {
+            android.net.ConnectivityManager cm =
+                    (android.net.ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            android.net.NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            return networkInfo != null && networkInfo.isConnected();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

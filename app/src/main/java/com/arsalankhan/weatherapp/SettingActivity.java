@@ -1,16 +1,20 @@
 package com.arsalankhan.weatherapp;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
-public class SettingActivity extends BaseActivity {
+public class SettingActivity extends BaseActivity {  // Changed from AppCompatActivity to BaseActivity
 
     private SwitchMaterial switchLocation, switchNotifications, switchGPSCaching, switchAutoRefresh;
     private SwitchMaterial switchCelsius, switchFahrenheit;
     private Button resetButton;
+
+    private SharedPreferences preferences;
 
     @Override
     protected int getLayoutId() {
@@ -19,12 +23,14 @@ public class SettingActivity extends BaseActivity {
 
     @Override
     protected int getBottomNavMenuId() {
-        return R.id.nav_more;
+        return R.id.nav_more;  // This should match the menu item for Settings
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);  // This will call BaseActivity.onCreate()
+
+        preferences = getSharedPreferences("WeatherPrefs", MODE_PRIVATE);
 
         // Find all views
         findViews();
@@ -50,22 +56,44 @@ public class SettingActivity extends BaseActivity {
     }
 
     private void initializeSwitches() {
-        // Set default states
-        if (switchLocation != null) switchLocation.setChecked(true);
-        if (switchNotifications != null) switchNotifications.setChecked(true);
-        if (switchGPSCaching != null) switchGPSCaching.setChecked(false);
-        if (switchAutoRefresh != null) switchAutoRefresh.setChecked(false);
+        // Load saved preferences
+        boolean locationEnabled = preferences.getBoolean("location_enabled", true);
+        boolean notificationsEnabled = preferences.getBoolean("notifications_enabled", true);
+        boolean gpsCachingEnabled = preferences.getBoolean("gps_caching", false);
+        boolean autoRefreshEnabled = preferences.getBoolean("auto_refresh", false);
 
-        // Add listeners if needed
+        // Set switch states
+        switchLocation.setChecked(locationEnabled);
+        switchNotifications.setChecked(notificationsEnabled);
+        switchGPSCaching.setChecked(gpsCachingEnabled);
+        switchAutoRefresh.setChecked(autoRefreshEnabled);
+
+        // Add listeners
         switchLocation.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            preferences.edit().putBoolean("location_enabled", isChecked).apply();
             Toast.makeText(this,
                     isChecked ? "Location services enabled" : "Location services disabled",
                     Toast.LENGTH_SHORT).show();
         });
 
         switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            preferences.edit().putBoolean("notifications_enabled", isChecked).apply();
             Toast.makeText(this,
                     isChecked ? "Notifications enabled" : "Notifications disabled",
+                    Toast.LENGTH_SHORT).show();
+        });
+
+        switchGPSCaching.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            preferences.edit().putBoolean("gps_caching", isChecked).apply();
+            Toast.makeText(this,
+                    isChecked ? "GPS caching enabled" : "GPS caching disabled",
+                    Toast.LENGTH_SHORT).show();
+        });
+
+        switchAutoRefresh.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            preferences.edit().putBoolean("auto_refresh", isChecked).apply();
+            Toast.makeText(this,
+                    isChecked ? "Auto-refresh enabled" : "Auto-refresh disabled",
                     Toast.LENGTH_SHORT).show();
         });
     }
@@ -107,12 +135,20 @@ public class SettingActivity extends BaseActivity {
             WeatherUtils.saveUnit(this, "metric");
 
             // Reset all switches
-            if (switchLocation != null) switchLocation.setChecked(true);
-            if (switchNotifications != null) switchNotifications.setChecked(true);
-            if (switchGPSCaching != null) switchGPSCaching.setChecked(false);
-            if (switchAutoRefresh != null) switchAutoRefresh.setChecked(false);
-            if (switchCelsius != null) switchCelsius.setChecked(true);
-            if (switchFahrenheit != null) switchFahrenheit.setChecked(false);
+            switchLocation.setChecked(true);
+            switchNotifications.setChecked(true);
+            switchGPSCaching.setChecked(false);
+            switchAutoRefresh.setChecked(false);
+            switchCelsius.setChecked(true);
+            switchFahrenheit.setChecked(false);
+
+            // Reset preferences
+            preferences.edit()
+                    .putBoolean("location_enabled", true)
+                    .putBoolean("notifications_enabled", true)
+                    .putBoolean("gps_caching", false)
+                    .putBoolean("auto_refresh", false)
+                    .apply();
 
             Toast.makeText(this, "Settings reset to defaults", Toast.LENGTH_SHORT).show();
         });

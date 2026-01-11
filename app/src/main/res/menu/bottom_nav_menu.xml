@@ -3,17 +3,20 @@
     <item
         android:id="@+id/nav_home"
         android:icon="@drawable/ic_home"
-        android:title="HOME" />
+        android:title="Home" />
+
     <item
         android:id="@+id/nav_search"
         android:icon="@drawable/ic_search"
-        android:title="SEARCH" />
+        android:title="Search" />
+
     <item
         android:id="@+id/nav_impact"
         android:icon="@drawable/ic_calendar"
-        android:title="WEEKLY" />
+        android:title="Impact" />
+
     <item
         android:id="@+id/nav_more"
         android:icon="@drawable/ic_more"
-        android:title="MORE" />
+        android:title="More" />
 </menu>

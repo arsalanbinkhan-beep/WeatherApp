@@ -232,10 +232,10 @@ public class WeatherModels {
         public String state;
         public double lat;
         public double lon;
-        public double temperature;
-        public String weatherIcon;
-        public String weatherDescription;
-        public boolean isFavorite;
+        public double temperature = 0; // Add this
+        public String weatherIcon = ""; // Add this
+        public String weatherDescription = ""; // Add this
+        public boolean isFavorite = false;
 
         public CityItem(String name, String country, String state, double lat, double lon) {
             this.name = name;
@@ -259,4 +259,5 @@ public class WeatherModels {
             this.iconRes = iconRes;
         }
     }
+
 }

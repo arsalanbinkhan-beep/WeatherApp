@@ -66,6 +66,7 @@
                         android:layout_height="48dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_location"
+                        android:contentDescription="Current location"
                         app:tint="@color/black"
                         tools:ignore="SpeakableTextPresentCheck" />
 
@@ -80,12 +81,24 @@
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
+                    <!-- Settings Button Added -->
+                    <ImageButton
+                        android:id="@+id/settingsBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_settings"
+                        android:contentDescription="Settings"
+                        app:tint="@color/black"
+                        tools:ignore="SpeakableTextPresentCheck" />
+
                     <ImageButton
                         android:id="@+id/favoriteBtn"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_favorite_border"
+                        android:contentDescription="Add to favorites"
                         app:tint="@color/black"
                         tools:ignore="SpeakableTextPresentCheck" />
 
@@ -95,6 +108,7 @@
                         android:layout_height="48dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:src="@drawable/ic_refresh"
+                        android:contentDescription="Refresh"
                         app:tint="@color/black"
                         tools:ignore="SpeakableTextPresentCheck" />
                 </LinearLayout>
@@ -177,6 +191,7 @@
                             android:layout_marginStart="16dp"
                             android:text="--"
                             android:textSize="14sp" />
+
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 

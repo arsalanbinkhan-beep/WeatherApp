@@ -9,16 +9,13 @@
     <color name="white">#FFFFFF</color>
     <color name="bottom_nav_selected">#000000</color>
     <color name="bottom_nav_unselected">#888888</color>
-    <color name="aqi_good">#00E400</color>
-
     <color name="aqi_fair">#FFFF00</color>
-
-    <color name="aqi_moderate">#FF7E00</color>
-
     <color name="aqi_poor">#FF0000</color>
-
     <color name="aqi_very_poor">#8F3F97</color>
-
+    <color name="aqi_good">#00E400</color>
+    <color name="aqi_moderate">#FFFF00</color>
+    <color name="aqi_unhealthy_sensitive">#FF7E00</color>
+    <color name="aqi_unhealthy">#FF0000</color>
+    <color name="aqi_very_unhealthy">#8F3F97</color>
     <color name="aqi_hazardous">#7E0023</color>
-
 </resources>

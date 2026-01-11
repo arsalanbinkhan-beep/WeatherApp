@@ -3,10 +3,12 @@ package com.arsalankhan.weatherapp;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.cardview.widget.CardView;
 
 public class MoreActivity extends BaseActivity {
 
@@ -24,60 +26,100 @@ public class MoreActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.d("MoreActivity", "MoreActivity created");
+
         setupMenuItems();
     }
 
     private void setupMenuItems() {
+        Log.d("MoreActivity", "Setting up menu items");
+
+        // FIXED: Changed LinearLayout to CardView
         // Settings - Navigate to SettingActivity
-        LinearLayout settingsItem = findViewById(R.id.settingsItem);
+        CardView settingsItem = findViewById(R.id.settingsItem);
         if (settingsItem != null) {
-            settingsItem.setOnClickListener(v -> navigateTo(SettingActivity.class));
+            settingsItem.setOnClickListener(v -> {
+                Log.d("MoreActivity", "Settings clicked");
+                navigateTo(SettingActivity.class);
+            });
+        } else {
+            Log.e("MoreActivity", "Settings item not found!");
         }
 
         // Favorites - Navigate to SearchActivity which shows favorites
-        LinearLayout favoritesItem = findViewById(R.id.favoritesItem);
+        CardView favoritesItem = findViewById(R.id.favoritesItem);
         if (favoritesItem != null) {
             favoritesItem.setOnClickListener(v -> {
+                Log.d("MoreActivity", "Favorites clicked");
                 // Navigate to SearchActivity (which shows favorites when search is empty)
                 navigateTo(SearchActivity.class);
             });
         }
 
         // Weather Map - Open browser
-        LinearLayout weatherMapItem = findViewById(R.id.weatherMapItem);
+        CardView weatherMapItem = findViewById(R.id.weatherMapItem);
         if (weatherMapItem != null) {
-            weatherMapItem.setOnClickListener(v -> openWeatherMap());
+            weatherMapItem.setOnClickListener(v -> {
+                Log.d("MoreActivity", "Weather Map clicked");
+                openWeatherMap();
+            });
+        }
+
+        // AQI Map - Navigate to AqiMapActivity
+        CardView aqiMapItem = findViewById(R.id.aqiMapItem);
+        if (aqiMapItem != null) {
+            aqiMapItem.setOnClickListener(v -> {
+                Log.d("MoreActivity", "AQI Map clicked");
+                navigateTo(AqiMapActivity.class);
+            });
         }
 
         // Air Quality - Show info dialog
-        LinearLayout airQualityItem = findViewById(R.id.airQualityItem);
+        CardView airQualityItem = findViewById(R.id.airQualityItem);
         if (airQualityItem != null) {
-            airQualityItem.setOnClickListener(v -> showAirQualityInfo());
+            airQualityItem.setOnClickListener(v -> {
+                Log.d("MoreActivity", "Air Quality clicked");
+                showAirQualityInfo();
+            });
         }
 
         // UV Index - Show info dialog
-        LinearLayout uvIndexItem = findViewById(R.id.uvIndexItem);
+        CardView uvIndexItem = findViewById(R.id.uvIndexItem);
         if (uvIndexItem != null) {
-            uvIndexItem.setOnClickListener(v -> showUVIndexInfo());
+            uvIndexItem.setOnClickListener(v -> {
+                Log.d("MoreActivity", "UV Index clicked");
+                showUVIndexInfo();
+            });
         }
 
         // About - Show about dialog
-        LinearLayout aboutItem = findViewById(R.id.aboutItem);
+        CardView aboutItem = findViewById(R.id.aboutItem);
         if (aboutItem != null) {
-            aboutItem.setOnClickListener(v -> showAboutDialog());
+            aboutItem.setOnClickListener(v -> {
+                Log.d("MoreActivity", "About clicked");
+                showAboutDialog();
+            });
         }
 
         // Share App - Share via intent
-        LinearLayout shareItem = findViewById(R.id.shareItem);
+        CardView shareItem = findViewById(R.id.shareItem);
         if (shareItem != null) {
-            shareItem.setOnClickListener(v -> shareApp());
+            shareItem.setOnClickListener(v -> {
+                Log.d("MoreActivity", "Share clicked");
+                shareApp();
+            });
         }
 
         // Rate App - Open Play Store
-        LinearLayout rateItem = findViewById(R.id.rateItem);
+        CardView rateItem = findViewById(R.id.rateItem);
         if (rateItem != null) {
-            rateItem.setOnClickListener(v -> rateApp());
+            rateItem.setOnClickListener(v -> {
+                Log.d("MoreActivity", "Rate clicked");
+                rateApp();
+            });
         }
+
+        Log.d("MoreActivity", "Menu items setup complete");
     }
 
     private void openWeatherMap() {
@@ -127,6 +169,7 @@ public class MoreActivity extends BaseActivity {
                         "• Kashif Ansari\n" +
                         "• Ali Abbas\n\n" +
                         "Powered by OpenWeatherMap API\n" +
+                        "AQI Data from OpenAQ.org\n" +
                         "Icons by Material Design\n\n" +
                         "© 2025 All rights reserved")
                 .setPositiveButton("OK", null)
@@ -148,15 +191,8 @@ public class MoreActivity extends BaseActivity {
 
     private void rateApp() {
         try {
-            // For now, just show a toast since app might not be on Play Store
             Toast.makeText(this, "Thank you for your interest in rating our app!",
                     Toast.LENGTH_SHORT).show();
-
-            // Uncomment when app is on Play Store
-
-            startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=" + getPackageName())));
-
         } catch (Exception e) {
             Toast.makeText(this, "Cannot open Play Store", Toast.LENGTH_SHORT).show();
         }

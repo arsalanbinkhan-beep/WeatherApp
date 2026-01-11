@@ -38,12 +38,12 @@ public class ImpactActivity extends BaseActivity {
 
     @Override
     protected int getBottomNavMenuId() {
-        return R.id.nav_impact;
+        return R.id.nav_impact;  // This should match the menu item for Impact
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);  // This calls BaseActivity.onCreate()
 
         initViews();
         setupRecyclerView();
@@ -75,7 +75,6 @@ public class ImpactActivity extends BaseActivity {
         Call<WeatherModels.ForecastResponse> call = service.getForecast(
                 city,
                 unit,
-                // 5 days * 8 forecasts per day = 40
                 WeatherApiService.API_KEY
         );
 
