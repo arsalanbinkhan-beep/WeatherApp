@@ -1,6 +1,7 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:theme="@style/Theme.MaterialComponents.DayNight"
     android:layout_width="80dp"
     android:layout_height="180dp"
     android:layout_margin="4dp"
@@ -12,6 +13,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
+        android:background="#64748B"
         android:padding="8dp">
 
         <ImageView
