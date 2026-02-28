@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <path
+        android:name="sun_body"
+        android:fillColor="#FFB74D"
+        android:pathData="M100,100 m-35,0 a35,35 0 1,1 70,0 a35,35 0 1,1 -70,0" />
+
+    <group android:name="rays_group">
+        <path android:fillColor="#F57C00" android:pathData="M100,45 L106,60 L94,60 Z" />
+        <path android:fillColor="#F57C00" android:pathData="M100,155 L106,140 L94,140 Z" />
+        <path android:fillColor="#F57C00" android:pathData="M155,100 L140,106 L140,94 Z" />
+        <path android:fillColor="#F57C00" android:pathData="M45,100 L60,106 L60,94 Z" />
+
+        <path android:fillColor="#F57C00" android:pathData="M139,61 L125,71 L131,77 Z" />
+        <path android:fillColor="#F57C00" android:pathData="M139,139 L131,123 L125,129 Z" />
+        <path android:fillColor="#F57C00" android:pathData="M61,139 L69,123 L75,129 Z" />
+        <path android:fillColor="#F57C00" android:pathData="M61,61 L75,71 L69,77 Z" />
+    </group>
+</vector>

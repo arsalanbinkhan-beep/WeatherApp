@@ -29,8 +29,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -337,9 +339,8 @@ public class MainActivity extends BaseActivity {
 
         showLoading(true);
 
-        com.google.android.gms.location.LocationRequest locationRequest =
-                new com.google.android.gms.location.LocationRequest.Builder(
-                        com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY, 10000)
+        LocationRequest locationRequest =
+                new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
                         .setMinUpdateIntervalMillis(5000)
                         .build();
 
@@ -558,34 +559,113 @@ public class MainActivity extends BaseActivity {
                 URL url = new URL(aqiUrl);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(10000);
 
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
+                int responseCode = connection.getResponseCode();
+                if (responseCode == 200) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    StringBuilder response = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
 
-                // Parse AQI response
-                Gson gson = new Gson();
-                JsonObject jsonResponse = gson.fromJson(response.toString(), JsonObject.class);
+                    // Parse AQI response
+                    Gson gson = new Gson();
+                    JsonObject jsonResponse = gson.fromJson(response.toString(), JsonObject.class);
 
-                if (jsonResponse.has("list") && jsonResponse.getAsJsonArray("list").size() > 0) {
-                    JsonObject aqiData = jsonResponse.getAsJsonArray("list").get(0).getAsJsonObject();
-                    JsonObject main = aqiData.getAsJsonObject("main");
-                    int aqi = main.get("aqi").getAsInt();
+                    if (jsonResponse.has("list") && jsonResponse.getAsJsonArray("list").size() > 0) {
+                        JsonObject aqiData = jsonResponse.getAsJsonArray("list").get(0).getAsJsonObject();
+                        JsonObject main = aqiData.getAsJsonObject("main");
+                        int europeAqi = main.get("aqi").getAsInt(); // This is 1-5 scale
 
-                    runOnUiThread(() -> updateAirQualityUI(aqi));
+                        // Convert to US AQI scale and update UI
+                        int usAqi = convertToUsAqi(europeAqi);
+                        runOnUiThread(() -> updateAirQualityUI(usAqi, europeAqi));
+                    } else {
+                        runOnUiThread(() -> updateAirQualityUI(-1, -1));
+                    }
                 } else {
-                    runOnUiThread(() -> updateAirQualityUI(-1));
+                    runOnUiThread(() -> updateAirQualityUI(-1, -1));
                 }
 
             } catch (Exception e) {
                 Log.e("AQI", "Error loading AQI: " + e.getMessage());
-                runOnUiThread(() -> updateAirQualityUI(-1));
+                runOnUiThread(() -> updateAirQualityUI(-1, -1));
             }
         }).start();
+    }
+
+    // Convert European AQI (1-5) to US AQI (0-500)
+    private int convertToUsAqi(int europeAqi) {
+        switch (europeAqi) {
+            case 1: // Good
+                return 25; // 0-50 range
+            case 2: // Fair
+                return 75; // 51-100 range
+            case 3: // Moderate
+                return 125; // 101-150 range
+            case 4: // Poor
+                return 200; // 151-200 range
+            case 5: // Very Poor
+                return 300; // 201-300 range
+            default:
+                return 0;
+        }
+    }
+
+    // Update UI with converted AQI values
+    private void updateAirQualityUI(int usAqi, int europeAqi) {
+        if (aqiText != null && aqiLevelText != null) {
+            if (usAqi == -1) {
+                aqiText.setText("AQI: --");
+                aqiLevelText.setText("No Data");
+                aqiLevelText.setTextColor(getResources().getColor(android.R.color.darker_gray));
+            } else {
+                // Display US AQI
+                aqiText.setText("AQI: " + usAqi);
+
+                // Get level based on US AQI
+                String level = getAQILevel(usAqi);
+                aqiLevelText.setText(level);
+
+                // Set color based on US AQI
+                int color = getAQIColor(usAqi);
+                aqiLevelText.setTextColor(color);
+
+                // Log for debugging
+                Log.d("AQI", "Europe AQI: " + europeAqi + " -> US AQI: " + usAqi + " (" + level + ")");
+            }
+        }
+    }
+
+    // Get AQI level based on US AQI scale
+    private String getAQILevel(int aqi) {
+        if (aqi <= 50) return "Good";
+        if (aqi <= 100) return "Moderate";
+        if (aqi <= 150) return "Unhealthy for Sensitive Groups";
+        if (aqi <= 200) return "Unhealthy";
+        if (aqi <= 300) return "Very Unhealthy";
+        return "Hazardous";
+    }
+
+    // Get color based on US AQI scale
+    private int getAQIColor(int aqi) {
+        if (aqi <= 50) {
+            return getResources().getColor(android.R.color.holo_green_dark); // Good - Green
+        } else if (aqi <= 100) {
+            return getResources().getColor(android.R.color.holo_orange_light); // Moderate - Yellow/Orange
+        } else if (aqi <= 150) {
+            return getResources().getColor(android.R.color.holo_orange_dark); // Unhealthy for Sensitive - Orange
+        } else if (aqi <= 200) {
+            return getResources().getColor(android.R.color.holo_red_light); // Unhealthy - Red
+        } else if (aqi <= 300) {
+            return getResources().getColor(android.R.color.holo_purple); // Very Unhealthy - Purple
+        } else {
+            return getResources().getColor(android.R.color.holo_red_dark); // Hazardous - Dark Red
+        }
     }
 
     private void updateUI(WeatherModels.WeatherResponse weather) {
@@ -691,7 +771,13 @@ public class MainActivity extends BaseActivity {
                 R.drawable.ic_wind
         ));
 
-
+        // 8. Wind Direction
+        weatherDetails.add(new WeatherModels.WeatherDetail(
+                "Wind Direction",
+                WeatherUtils.getWindDirection(weather.wind.degree),
+                weather.wind.degree + "°",
+                R.drawable.ic_wind_direction
+        ));
 
         // --- COLUMN 2: ADVANCED WEATHER DETAILS ---
 
@@ -900,17 +986,6 @@ public class MainActivity extends BaseActivity {
         return "NW";
     }
 
-    private String getWindDirectionArrow(double degrees) {
-        if (degrees >= 337.5 || degrees < 22.5) return "↑";
-        if (degrees >= 22.5 && degrees < 67.5) return "↗";
-        if (degrees >= 67.5 && degrees < 112.5) return "→";
-        if (degrees >= 112.5 && degrees < 157.5) return "↘";
-        if (degrees >= 157.5 && degrees < 202.5) return "↓";
-        if (degrees >= 202.5 && degrees < 247.5) return "↙";
-        if (degrees >= 247.5 && degrees < 292.5) return "←";
-        return "↖";
-    }
-
     private String getUVILevel(double uvi) {
         if (uvi <= 2) return "Low";
         if (uvi <= 5) return "Moderate";
@@ -1052,39 +1127,6 @@ public class MainActivity extends BaseActivity {
         hourlyAdapter.updateData(hourlyItems);
     }
 
-    private void updateAirQualityUI(int aqi) {
-        if (aqiText != null && aqiLevelText != null) {
-            if (aqi == -1) {
-                aqiText.setText("AQI: --");
-                aqiLevelText.setText("No Data");
-                aqiLevelText.setTextColor(getResources().getColor(android.R.color.darker_gray));
-            } else {
-                aqiText.setText("AQI: " + aqi);
-                String level = getAQILevel(aqi);
-                aqiLevelText.setText(level);
-                aqiLevelText.setTextColor(getAQIColor(aqi));
-            }
-        }
-    }
-
-    private String getAQILevel(int aqi) {
-        if (aqi <= 50) return "Good";
-        if (aqi <= 100) return "Moderate";
-        if (aqi <= 150) return "Unhealthy (Sensitive)";
-        if (aqi <= 200) return "Unhealthy";
-        if (aqi <= 300) return "Very Unhealthy";
-        return "Hazardous";
-    }
-
-    private int getAQIColor(int aqi) {
-        if (aqi <= 50) return getResources().getColor(R.color.aqi_good);
-        if (aqi <= 100) return getResources().getColor(R.color.aqi_moderate);
-        if (aqi <= 150) return getResources().getColor(R.color.aqi_unhealthy_sensitive);
-        if (aqi <= 200) return getResources().getColor(R.color.aqi_unhealthy);
-        if (aqi <= 300) return getResources().getColor(R.color.aqi_very_unhealthy);
-        return getResources().getColor(R.color.aqi_hazardous);
-    }
-
     private void checkIfFavorite() {
         if (currentWeather == null) return;
 
@@ -1210,7 +1252,10 @@ public class MainActivity extends BaseActivity {
 
         weatherIcon.setImageResource(R.drawable.ic_weather_cloud_sun);
 
-        updateAirQualityUI(-1);
+        // Show sample AQI with proper conversion
+        int sampleEuropeAqi = 2; // Fair
+        int sampleUsAqi = convertToUsAqi(sampleEuropeAqi);
+        updateAirQualityUI(sampleUsAqi, sampleEuropeAqi);
 
         // Clear sample details
         weatherDetails.clear();

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+
+    <path
+        android:name="moon_body"
+        android:fillColor="#E0E0E0"
+        android:pathData="M100,100 m-40,0 a40,40 0 1,1 80,0 a40,40 0 1,1 -80,0" />
+
+    <group android:name="craters">
+        <path
+            android:fillColor="#BDBDBD"
+            android:pathData="M80,85 a8,8 0 1,0 16,0 a8,8 0 1,0 -16,0" />
+        <path
+            android:fillColor="#BDBDBD"
+            android:pathData="M115,105 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+        <path
+            android:fillColor="#BDBDBD"
+            android:pathData="M100,125 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0" />
+        <path
+            android:fillColor="#BDBDBD"
+            android:pathData="M75,115 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+    </group>
+</vector>

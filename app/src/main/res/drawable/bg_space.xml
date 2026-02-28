@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="1080dp"
+    android:height="1920dp"
+    android:viewportWidth="1080"
+    android:viewportHeight="1920">
+
+    <path
+        android:fillColor="#FF0B1020"
+        android:pathData="M0,0h1080v1920h-1080z" />
+
+    <!-- Stars -->
+    <group>
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M200,300 L205,310 L195,310 Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M800,500 L805,510 L795,510 Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M400,800 L405,810 L395,810 Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M900,1200 L905,1210 L895,1210 Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M100,1500 L105,1510 L95,1510 Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M600,1700 L605,1710 L595,1710 Z" />
+    </group>
+</vector>

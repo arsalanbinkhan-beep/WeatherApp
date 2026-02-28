@@ -1,7 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.WeatherApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    <style name="Theme.WeatherApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color - darker for night mode -->
+        <item name="colorPrimary">@color/bg_dark</item>
+        <item name="colorPrimaryVariant">@color/dark_gray</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/black</item>
+
+        <!-- Status bar - dark for night mode -->
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Navigation bar -->
+        <item name="android:navigationBarColor">@color/bg_dark</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+
+        <!-- Window background -->
+        <item name="android:windowBackground">@color/bg_dark</item>
+
+        <!-- Customize your dark theme here -->
     </style>
 </resources>

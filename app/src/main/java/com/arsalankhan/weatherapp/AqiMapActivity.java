@@ -1,5 +1,7 @@
 package com.arsalankhan.weatherapp;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebChromeClient;
@@ -49,6 +51,8 @@ public class AqiMapActivity extends BaseActivity {
         webSettings.setBuiltInZoomControls(true);
         webSettings.setDisplayZoomControls(false);
         webSettings.setSupportZoom(true);
+        webSettings.setAllowFileAccess(false);
+        webSettings.setAllowContentAccess(false);
 
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -68,8 +72,9 @@ public class AqiMapActivity extends BaseActivity {
                 super.onReceivedError(view, request, error);
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(AqiMapActivity.this,
-                        "Failed to load AQI map. Please check your connection.",
+                        "Failed to load AQI map. Opening in browser...",
                         Toast.LENGTH_SHORT).show();
+                openInBrowser();
             }
 
             @Override
@@ -80,24 +85,38 @@ public class AqiMapActivity extends BaseActivity {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                // Handle external links if needed
-                return super.shouldOverrideUrlLoading(view, url);
+                // Check if the URL is external (not from our allowed domain)
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    // Let WebView load it
+                    return false;
+                }
+                return true;
             }
         });
     }
 
     private void loadAqiMap() {
-        // Option 1: OpenWeatherMap Weather Maps (Basic maps are free)
-        String openWeatherMapUrl = "https://openweathermap.org/weathermap?basemap=map&cities=true";
+        // Google's AQI map - more reliable
+        String googleAqiMapUrl = "https://www.google.com/maps/search/air+quality/";
 
-        // Option 2: OpenAQ Explorer (Free air quality data visualization)
-        String openAqUrl = "https://explorer.openaq.org/#/map";
+        // Alternative: IQAir's global AQI map (very reliable)
+        String iqAirUrl = "https://www.iqair.com/air-quality-map";
 
-        // Option 3: World Air Quality Index Project
-        String waqiUrl = "https://waqi.info/#/c/10/10/2z";
+        // Alternative: PurpleAir map (community-based sensors)
+        String purpleAirUrl = "https://map.purpleair.com/";
 
-        // Load OpenAQ Explorer (recommended for AQI visualization)
-        webView.loadUrl(openAqUrl);
+        // Load IQAir map (recommended as it works best in WebView)
+        webView.loadUrl(iqAirUrl);
+    }
+
+    private void openInBrowser() {
+        try {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://www.iqair.com/air-quality-map"));
+            startActivity(browserIntent);
+        } catch (Exception e) {
+            Toast.makeText(this, "Cannot open browser", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
